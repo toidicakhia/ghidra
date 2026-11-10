@@ -34,6 +34,7 @@ Action::Action(uint4 f,const string &nm,const string &g)
   basegroup = g;
   count_tests = 0;
   count_apply = 0;
+  maxloop = 0;
 }
 
 /// If enabled, issue a warning that this Action has been applied
@@ -299,6 +300,7 @@ int4 Action::perform(Funcdata &data)
 
 {
   int4 res;
+  uint4 iterations = 0;
 
   do {
     switch(status) {
@@ -347,6 +349,14 @@ int4 Action::perform(Funcdata &data)
       break;			// we either repeat, or return our count
     }
     status = status_repeat;
+    uint4 lim = maxloop;
+    if (lim == 0 && data.getMaxMainloop() != 0) {
+      if (name == "mainloop")
+	lim = data.getMaxMainloop();
+      else if (name == "fullloop")
+	lim = 1;
+    }
+    if (lim != 0 && ++iterations >= lim) break;
   } while((lcount<count)&&((flags&rule_repeatapply)!=0));
 
   if ((flags&(rule_onceperfunc|rule_oneactperfunc))!=0) {
@@ -397,8 +407,10 @@ Action *ActionGroup::clone(const ActionGroupList &grouplist) const
   for(iter=list.begin();iter!=list.end();++iter) {
     ac = (*iter)->clone(grouplist);
     if (ac != (Action *)0) {
-      if (res == (ActionGroup *)0)
+      if (res == (ActionGroup *)0) {
 	res = new ActionGroup(flags,getName());
+	res->setMaxLoop(maxloop);
+      }
       res->addAction(ac);
     }
   }
@@ -535,8 +547,10 @@ Action *ActionRestartGroup::clone(const ActionGroupList &grouplist) const
   for(iter=list.begin();iter!=list.end();++iter) {
     ac = (*iter)->clone(grouplist);
     if (ac != (Action *)0) {
-      if (res == (ActionGroup *)0)
+      if (res == (ActionGroup *)0) {
 	res = new ActionRestartGroup(flags,getName(),maxrestarts);
+	res->setMaxLoop(maxloop);
+      }
       res->addAction(ac);
     }
   }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "funcdata.hh"
+#include <cstdlib>
 
 namespace ghidra {
 
@@ -51,6 +52,7 @@ Funcdata::Funcdata(const string &nm,const string &disp,Scope *scope,const Addres
   displayName = disp;
 
   size = sz;
+  max_mainloop = 0;
   AddrSpace *stackid = glb->getStackSpace();
   if (nm.size()==0)
     localmap = (ScopeLocal *)0; // Filled in by decode
@@ -161,6 +163,17 @@ void Funcdata::startProcessing(void)
   Address baddr(baseaddr.getSpace(),0);
   Address eaddr(baseaddr.getSpace(),~((uintb)0));
   followFlow(baddr,eaddr);
+  // Cap the main analysis loop for very large functions.  Normal functions
+  // converge quickly and keep the unlimited default.
+  const char *maxloopEnv = getenv("DECOMP_MAX_MAINLOOP");
+  if (maxloopEnv != (const char *)0)
+    max_mainloop = (uint4)strtoul(maxloopEnv,(char **)0,10);
+  else if (size > 200000)
+    max_mainloop = 2;
+  else if (size > 50000)
+    max_mainloop = 10;
+  else
+    max_mainloop = 0;
   structureReset();
   sortCallSpecs();		// Must come after structure reset
   heritage.buildInfoList();

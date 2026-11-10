@@ -422,7 +422,9 @@ public class DecompileProcess {
 					// start with any initial allocation of 1024 bytes, also give an absolute upper bound
 					// determined by maxResultSizeMBYtes
 					currentResponse = mainResponse;
-					currentResponse.open(maxResultSizeMBYtes << 20, programSource);
+					// Cast before shifting: 4096 MB would otherwise overflow the 32-bit
+					// int and become 0, which rejects every decompiler result.
+					currentResponse.open(((long) maxResultSizeMBYtes) << 20, programSource);
 					break;
 				case 15:			// This is the end of the main decompiler output
 					if (currentResponse == null) {

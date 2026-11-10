@@ -84,6 +84,7 @@ protected:
   uint4 flags;			///< Behavior properties
   uint4 count_tests;		///< Number of times apply() has been called
   uint4 count_apply;		///< Number of times apply() made changes
+  uint4 maxloop;		///< Maximum repetitions for rule_repeatapply (0 = unlimited)
   string name;			///< Name of the action
   string basegroup;		///< Base group this action belongs to
   void issueWarning(Architecture *glb);	///< Warn that this Action has applied
@@ -100,6 +101,7 @@ public:
 #endif
   virtual void printStatistics(ostream &s) const;		///< Dump statistics to stream
   int4 perform(Funcdata &data); 				///< Perform this action (if necessary)
+  void setMaxLoop(uint4 val) { maxloop = val; }		///< Set maximum repeat count (0 = unlimited)
   bool setBreakPoint(uint4 tp,const string &specify);		///< Set a breakpoint on this action
   virtual void clearBreakPoints(void);				///< Clear all breakpoints set on \b this Action
   bool setWarning(bool val,const string &specify);		///< Set a warning on this action

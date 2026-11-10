@@ -78,6 +78,7 @@ class Funcdata {
   uint4 cast_phase_index;	///< Creation index of first Varnode created after ActionSetCasts
   uint4 minLanedSize;		///< Minimum Varnode size to check as LanedRegister
   int4 size;			///< Number of bytes of binary data in function body
+  uint4 max_mainloop;		///< Maximum main analysis loop repetitions (0 = unlimited)
   Architecture *glb;		///< Global configuration data
   FunctionSymbol *functionSymbol;	///< The symbol representing \b this function
   string name;			///< Name of function
@@ -141,6 +142,8 @@ public:
   const string &getDisplayName(void) const { return displayName; }	///< Get the name to display in output
   const Address &getAddress(void) const { return baseaddr; }		///< Get the entry point address
   int4 getSize(void) const { return size; }				///< Get the function body size in bytes
+  uint4 getMaxMainloop(void) const { return max_mainloop; }		///< Get the main loop repetition cap
+  void setMaxMainloop(uint4 val) { max_mainloop = val; }		///< Set the main loop repetition cap
   Architecture *getArch(void) const { return glb; }			///< Get the program/architecture owning \b this function
   FunctionSymbol *getSymbol(void) const { return functionSymbol; }	///< Return the symbol associated with \b this function
   bool isHighOn(void) const { return ((flags&highlevel_on)!=0); }	///< Are high-level variables assigned to Varnodes
